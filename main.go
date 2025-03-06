@@ -25,10 +25,17 @@ func main() {
 	music.Looping = true
 	rl.PlayMusicStream(music)
 
+	var textures ut.Textures = ut.Textures{}
+	textures.Load()
+
 	var knight sp.Knight = sp.Knight{}
-	knight.Load()
+	knight.Load(textures.Knight)
 	var ground sp.Ground = sp.Ground{}
-	ground.Load()
+	ground.Load(textures.Ground, textures.Foam)
+
+	var objects sp.Objects = sp.Objects{}
+	objects.Load(textures.House, textures.Tree)
+
 	var camera ut.Camera = ut.Camera{}
 	camera.TargetPosition = &knight.Position
 	camera.CameraPosition = knight.Position
@@ -42,7 +49,10 @@ func main() {
 		}
 		knight.Update()
 		camera.Update()
+		ground.Update()
+		objects.Update()
 		ground.ApplyCameraOffset(camera.Offset)
+		objects.ApplyCameraOffset(camera.Offset)
 
 		rl.BeginTextureMode(Canvas)
 
@@ -50,6 +60,7 @@ func main() {
 
 		// rl.DrawFPS(0, 0)
 		ground.Draw()
+		objects.Draw()
 		knight.Draw()
 
 		rl.EndTextureMode()
@@ -60,8 +71,7 @@ func main() {
 		rl.EndDrawing()
 	}
 
-	knight.UnLoad()
-	ground.UnLoad()
+	textures.UnLoad()
 	rl.UnloadRenderTexture(Canvas)
 	rl.UnloadMusicStream(music)
 	rl.CloseAudioDevice()

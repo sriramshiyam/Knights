@@ -24,9 +24,9 @@ type Knight struct {
 	attack_sound   rl.Sound
 }
 
-func (k *Knight) Load() {
+func (k *Knight) Load(texture rl.Texture2D) {
 	k.state = "idle"
-	k.texture = rl.LoadTexture("res/image/knight.png")
+	k.texture = texture
 	k.Speed = 400
 	k.direction = rl.Vector2Zero()
 	k.animation = ut.Animation{
@@ -55,13 +55,12 @@ func (k *Knight) Load() {
 	k.origin = rl.Vector2{}
 	k.attack_no = 0
 	k.attack_counter = 0
-	k.mouse_timer = 0.250
+	k.mouse_timer = 0.500
 	k.attack_sound = rl.LoadSound("res/sound/sword.wav")
 }
 
 func (k *Knight) UnLoad() {
-	rl.UnloadTexture(k.texture)
-	rl.UnloadSound(k.attack_sound)
+
 }
 
 func (k *Knight) Update() {
@@ -71,10 +70,11 @@ func (k *Knight) Update() {
 
 	if k.mouse_timer < 0 {
 		k.attack_counter = 0
+		k.attack_no = 0
 	}
 
 	if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-		k.mouse_timer = 0.250
+		k.mouse_timer = 0.500
 		k.attack_counter++
 	}
 
