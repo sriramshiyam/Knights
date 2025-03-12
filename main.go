@@ -23,6 +23,7 @@ func main() {
 
 	var music rl.Music = rl.LoadMusicStream("res/music/country.mp3")
 	music.Looping = true
+	rl.SetMasterVolume(0.0)
 	rl.PlayMusicStream(music)
 
 	var textures ut.Textures = ut.Textures{}
@@ -34,7 +35,7 @@ func main() {
 	ground.Load(textures.Ground, textures.Foam)
 
 	var objects sp.Objects = sp.Objects{}
-	objects.Load(textures.House, textures.Tree)
+	objects.Load(textures.House, textures.Tree, &textures.PlantTextures)
 
 	var camera ut.Camera = ut.Camera{}
 	camera.TargetPosition = &knight.Position
