@@ -54,6 +54,7 @@ func main() {
 		objects.Update()
 		ground.ApplyCameraOffset(camera.Offset)
 		objects.ApplyCameraOffset(camera.Offset)
+		objects.HandleCollisionWithKnight(&knight)
 
 		rl.BeginTextureMode(Canvas)
 

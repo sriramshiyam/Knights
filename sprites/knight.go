@@ -22,6 +22,7 @@ type Knight struct {
 	attack_counter int
 	mouse_timer    float32
 	attack_sound   rl.Sound
+	CollisionBox   ut.CollisionBox
 }
 
 func (k *Knight) Load(texture rl.Texture2D) {
@@ -57,6 +58,7 @@ func (k *Knight) Load(texture rl.Texture2D) {
 	k.attack_counter = 0
 	k.mouse_timer = 0.500
 	k.attack_sound = rl.LoadSound("res/sound/sword.wav")
+	k.CollisionBox = ut.CollisionBox{Rect: rl.NewRectangle(k.Position.X+74, k.Position.Y+68, 41, 60)}
 }
 
 func (k *Knight) UnLoad() {
@@ -134,6 +136,8 @@ func (k *Knight) Update() {
 			k.Position = rl.Vector2Add(k.Position, rl.Vector2Scale(k.direction, float32(k.Speed)*rl.GetFrameTime()))
 			k.destRec.X = k.Position.X
 			k.destRec.Y = k.Position.Y
+			k.CollisionBox.Rect.X = k.Position.X + 74
+			k.CollisionBox.Rect.Y = k.Position.Y + 68
 		}
 	}
 
@@ -142,6 +146,7 @@ func (k *Knight) Update() {
 
 func (k *Knight) Draw() {
 	rl.DrawTexturePro(k.texture, k.sourceRec, k.destRec, k.origin, 0, rl.White)
+	rl.DrawRectangleLinesEx(k.CollisionBox.Rect, 1, rl.Red)
 }
 
 func (k *Knight) UpdateAnimation() {

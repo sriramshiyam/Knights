@@ -10,6 +10,6 @@ type Camera struct {
 
 func (c *Camera) Update() {
 	c.Offset = rl.Vector2Subtract(c.CameraPosition, *c.TargetPosition)
-	c.TargetPosition.X += c.Offset.X
-	c.TargetPosition.Y += c.Offset.Y
+	c.TargetPosition.X = c.CameraPosition.X
+	c.TargetPosition.Y = c.CameraPosition.Y
 }
