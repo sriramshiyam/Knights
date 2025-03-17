@@ -62,9 +62,10 @@ func main() {
 
 		// rl.DrawFPS(0, 0)
 		ground.Draw()
-		objects.Draw()
+		objects.DrawObjects(0)
 		knight.Draw()
-
+		objects.DrawObjects(1)
+		
 		rl.EndTextureMode()
 
 		rl.BeginDrawing()

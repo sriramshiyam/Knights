@@ -22,6 +22,8 @@ type Objects struct {
 	treeAnimation ut.Animation
 	treeSourceRec rl.Rectangle
 	plantTextures *map[string]rl.Texture2D
+	objects1      []*Object
+	objects2      []*Object
 }
 
 func (o *Objects) Load(houseTexture rl.Texture2D, treeTexture rl.Texture2D, plantTextures *map[string]rl.Texture2D) {
@@ -67,11 +69,24 @@ func (o *Objects) LoadPlants(x float32, y float32) {
 	var spriteNumber int8 = 1
 	var plantIndex int8 = 10
 
+	var rectForBush = func(x float32, y float32, bushNumber int8) rl.Rectangle {
+		if bushNumber == 1 {
+			return rl.NewRectangle(x+16, y+21, 31, 19)
+		} else if bushNumber == 2 {
+			return rl.NewRectangle(x+12, y+17, 41, 28)
+		} else {
+			return rl.NewRectangle(x+4, y+11, 57, 39)
+		}
+	}
+
 	for _, tree := range o.objects[4:10] {
+		var x float32 = tree.Position.X + 120 + float32(rand.IntN(20))
+		var y float32 = tree.Position.Y + 140 + float32(rand.IntN(20))
+
 		o.objects[plantIndex] = Object{
-			Position: rl.NewVector2(tree.Position.X+120+float32(rand.IntN(20)),
-				tree.Position.Y+140+float32(rand.IntN(20))),
-			Type: fmt.Sprintf("bush%d", spriteNumber)}
+			Position:     rl.NewVector2(x, y),
+			Type:         fmt.Sprintf("bush%d", spriteNumber),
+			CollisionBox: ut.CollisionBox{Rect: rectForBush(x, y, spriteNumber)}}
 
 		plantIndex++
 		spriteNumber++
@@ -79,10 +94,13 @@ func (o *Objects) LoadPlants(x float32, y float32) {
 			spriteNumber = 1
 		}
 
+		x = tree.Position.X + float32(rand.IntN(20))
+		y = tree.Position.Y + float32(rand.IntN(20))
+
 		o.objects[plantIndex] = Object{
-			Position: rl.NewVector2(tree.Position.X+float32(rand.IntN(20)),
-				tree.Position.Y+110+float32(rand.IntN(20))),
-			Type: fmt.Sprintf("bush%d", spriteNumber)}
+			Position:     rl.NewVector2(x, y),
+			Type:         fmt.Sprintf("bush%d", spriteNumber),
+			CollisionBox: ut.CollisionBox{Rect: rectForBush(x, y, spriteNumber)}}
 
 		plantIndex++
 		spriteNumber++
@@ -92,24 +110,24 @@ func (o *Objects) LoadPlants(x float32, y float32) {
 		}
 	}
 
-	o.objects[22] = Object{Position: rl.NewVector2(x+100, y+100), Type: "grass1"}
-	o.objects[23] = Object{Position: rl.NewVector2(x+300, y+500), Type: "grass2"}
-	o.objects[24] = Object{Position: rl.NewVector2(x+700, y+700), Type: "mushroom1"}
-	o.objects[25] = Object{Position: rl.NewVector2(x+100, y+1200), Type: "grass1"}
-	o.objects[26] = Object{Position: rl.NewVector2(x+1100, y+900), Type: "grass2"}
-	o.objects[27] = Object{Position: rl.NewVector2(x+1500, y+1500), Type: "mushroom2"}
-	o.objects[28] = Object{Position: rl.NewVector2(x+800, y+1600), Type: "grass1"}
-	o.objects[29] = Object{Position: rl.NewVector2(x+1200, y+1700), Type: "grass2"}
-	o.objects[30] = Object{Position: rl.NewVector2(x+1600, y+200), Type: "mushroom1"}
-	o.objects[31] = Object{Position: rl.NewVector2(x+1200, y+100), Type: "grass1"}
-	o.objects[32] = Object{Position: rl.NewVector2(x+1500, y+800), Type: "grass2"}
-	o.objects[33] = Object{Position: rl.NewVector2(x+900, y+780), Type: "mushroom2"}
-	o.objects[34] = Object{Position: rl.NewVector2(x+1200, y+1500), Type: "grass1"}
-	o.objects[35] = Object{Position: rl.NewVector2(x+200, y+1650), Type: "grass2"}
-	o.objects[36] = Object{Position: rl.NewVector2(x+500, y+1200), Type: "mushroom1"}
-	o.objects[37] = Object{Position: rl.NewVector2(x+550, y+1300), Type: "grass1"}
-	o.objects[38] = Object{Position: rl.NewVector2(x+350, y+900), Type: "grass2"}
-	o.objects[39] = Object{Position: rl.NewVector2(x+1200, y+1000), Type: "mushroom2"}
+	o.objects[22] = Object{Position: rl.NewVector2(x+100, y+100), Type: "grass1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+100+23, y+100+23, 21, 20)}}
+	o.objects[23] = Object{Position: rl.NewVector2(x+300, y+500), Type: "grass2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+300+20, y+500+15, 32, 32)}}
+	o.objects[24] = Object{Position: rl.NewVector2(x+700, y+700), Type: "mushroom1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+700+25, y+700+24, 17, 16)}}
+	o.objects[25] = Object{Position: rl.NewVector2(x+100, y+1200), Type: "grass1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+100+23, y+1200+23, 21, 20)}}
+	o.objects[26] = Object{Position: rl.NewVector2(x+1100, y+900), Type: "grass2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1100+20, y+900+15, 32, 32)}}
+	o.objects[27] = Object{Position: rl.NewVector2(x+1500, y+1500), Type: "mushroom2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1500+21, y+1500+20, 26, 24)}}
+	o.objects[28] = Object{Position: rl.NewVector2(x+800, y+1600), Type: "grass1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+800+23, y+1600+23, 21, 20)}}
+	o.objects[29] = Object{Position: rl.NewVector2(x+1200, y+1700), Type: "grass2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1200+20, y+1700+15, 32, 32)}}
+	o.objects[30] = Object{Position: rl.NewVector2(x+1600, y+200), Type: "mushroom1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1600+25, y+200+24, 17, 16)}}
+	o.objects[31] = Object{Position: rl.NewVector2(x+1200, y+100), Type: "grass1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1200+23, y+100+23, 21, 20)}}
+	o.objects[32] = Object{Position: rl.NewVector2(x+1500, y+800), Type: "grass2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1500+20, y+800+15, 32, 32)}}
+	o.objects[33] = Object{Position: rl.NewVector2(x+900, y+780), Type: "mushroom2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+900+21, y+780+20, 26, 24)}}
+	o.objects[34] = Object{Position: rl.NewVector2(x+1200, y+1500), Type: "grass1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1200+23, y+1500+23, 21, 20)}}
+	o.objects[35] = Object{Position: rl.NewVector2(x+200, y+1650), Type: "grass2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+200+20, y+1650+15, 32, 32)}}
+	o.objects[36] = Object{Position: rl.NewVector2(x+500, y+1200), Type: "mushroom1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+500+25, y+1200+24, 17, 16)}}
+	o.objects[37] = Object{Position: rl.NewVector2(x+550, y+1300), Type: "grass1", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+550+23, y+1300+23, 21, 20)}}
+	o.objects[38] = Object{Position: rl.NewVector2(x+350, y+900), Type: "grass2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+350+20, y+900+15, 32, 32)}}
+	o.objects[39] = Object{Position: rl.NewVector2(x+1200, y+1000), Type: "mushroom2", CollisionBox: ut.CollisionBox{Rect: rl.NewRectangle(x+1200+21, y+1000+20, 26, 24)}}
 }
 
 func (o *Objects) Update() {
@@ -129,15 +147,17 @@ func (o *Objects) UpdateTreeAnimation() {
 	}
 }
 
-func (o *Objects) Draw() {
-	for i := range o.objects {
-		var object *Object = &o.objects[i]
+func (o *Objects) DrawObjects(objectListNumber int8) {
+	var objects []*Object = ternary(objectListNumber == 0, o.objects1, o.objects2)
+
+	for i := range objects {
+		var object *Object = objects[i]
 		if object.Type == "house" {
 			rl.DrawTexture(o.houseTexture, int32(object.Position.X), int32(object.Position.Y), rl.White)
-			rl.DrawRectangleLinesEx(object.CollisionBox.Rect, 1, rl.Red)
+			// rl.DrawRectangleLinesEx(object.CollisionBox.Rect, 1, rl.Red)
 		} else if object.Type == "tree" {
 			rl.DrawTextureRec(o.treeTexture, o.treeSourceRec, object.Position, rl.White)
-			rl.DrawRectangleLinesEx(object.CollisionBox.Rect, 1, rl.Red)
+			// rl.DrawRectangleLinesEx(object.CollisionBox.Rect, 1, rl.Red)
 		} else {
 			var texture rl.Texture2D = (*o.plantTextures)[object.Type]
 			rl.DrawTexture(texture, int32(object.Position.X), int32(object.Position.Y), rl.White)
@@ -164,24 +184,38 @@ func (o *Objects) ApplyCameraOffset(offset rl.Vector2) {
 }
 func (o *Objects) HandleCollisionWithKnight(knight *Knight) {
 	var collisionBox *ut.CollisionBox = &knight.CollisionBox
+	o.objects1 = nil
+	o.objects2 = nil
 
 	for i := range o.objects {
 		var object *Object = &o.objects[i]
 		var objectCollisionBox *ut.CollisionBox = &o.objects[i].CollisionBox
 		var playerRect *rl.Rectangle = &collisionBox.Rect
 		var objectRect *rl.Rectangle = &objectCollisionBox.Rect
+		var half1 rl.Vector2 = rl.NewVector2(playerRect.Width/2, playerRect.Height/2)
+		var center1 rl.Vector2 = rl.NewVector2(playerRect.X+half1.X, playerRect.Y+half1.Y)
+
+		var half2 rl.Vector2 = rl.NewVector2(objectRect.Width/2, objectRect.Height/2)
+		var center2 rl.Vector2 = rl.NewVector2(objectRect.X+half2.X, objectRect.Y+half2.Y)
+
+		if object.Type == "house" || object.Type == "tree" {
+			if center1.Y < center2.Y {
+				o.objects2 = append(o.objects2, object)
+			} else {
+				o.objects1 = append(o.objects1, object)
+			}
+		} else {
+			if (playerRect.Y + playerRect.Height) < (objectRect.Y + objectRect.Height) {
+				o.objects2 = append(o.objects2, object)
+			} else {
+				o.objects1 = append(o.objects1, object)
+			}
+		}
 
 		if (object.Type == "house" || object.Type == "tree") &&
 			rl.Vector2Distance(rl.NewVector2(playerRect.X, playerRect.Y),
 				rl.NewVector2(objectRect.X, objectRect.Y)) < 200 {
-
 			var aabbInfo *ut.AABBInfo = &objectCollisionBox.AABBInfo
-
-			var half1 rl.Vector2 = rl.NewVector2(playerRect.Width/2, playerRect.Height/2)
-			var center1 rl.Vector2 = rl.NewVector2(playerRect.X+half1.X, playerRect.Y+half1.Y)
-
-			var half2 rl.Vector2 = rl.NewVector2(objectRect.Width/2, objectRect.Height/2)
-			var center2 rl.Vector2 = rl.NewVector2(objectRect.X+half2.X, objectRect.Y+half2.Y)
 
 			var delta rl.Vector2 = rl.NewVector2(float32(math.Abs(float64(center1.X)-float64(center2.X))), float32(math.Abs(float64(center1.Y)-float64(center2.Y))))
 
@@ -201,7 +235,6 @@ func (o *Objects) HandleCollisionWithKnight(knight *Knight) {
 					knight.Position.X = playerRect.X - 74
 					knight.Position.Y = playerRect.Y - 68
 				}
-
 			} else {
 				aabbInfo.PreviousOverlapX = aabbInfo.OverlapX
 				aabbInfo.PreviousOverlapY = aabbInfo.OverlapY

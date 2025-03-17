@@ -25,7 +25,6 @@ func (t *Textures) Load() {
 	t.PlantTextures["grass2"] = rl.LoadTexture("res/image/grass2.png")
 	t.PlantTextures["mushroom1"] = rl.LoadTexture("res/image/mushroom1.png")
 	t.PlantTextures["mushroom2"] = rl.LoadTexture("res/image/mushroom2.png")
-	t.PlantTextures["mushroom3"] = rl.LoadTexture("res/image/mushroom3.png")
 }
 
 func (t *Textures) UnLoad() {

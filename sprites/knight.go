@@ -146,7 +146,7 @@ func (k *Knight) Update() {
 
 func (k *Knight) Draw() {
 	rl.DrawTexturePro(k.texture, k.sourceRec, k.destRec, k.origin, 0, rl.White)
-	rl.DrawRectangleLinesEx(k.CollisionBox.Rect, 1, rl.Red)
+	// rl.DrawRectangleLinesEx(k.CollisionBox.Rect, 1, rl.Red)
 }
 
 func (k *Knight) UpdateAnimation() {
