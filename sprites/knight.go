@@ -8,6 +8,13 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+var side = struct {
+	Right  int
+	Bottom int
+	Left   int
+	Top    int
+}{0, 1, 2, 3}
+
 type Knight struct {
 	Position       rl.Vector2
 	direction      rl.Vector2
@@ -23,6 +30,7 @@ type Knight struct {
 	mouse_timer    float32
 	attack_sound   rl.Sound
 	CollisionBox   ut.CollisionBox
+	aimSide        int
 }
 
 func (k *Knight) Load(texture rl.Texture2D) {
@@ -66,36 +74,8 @@ func (k *Knight) UnLoad() {
 }
 
 func (k *Knight) Update() {
-	if k.mouse_timer > 0 {
-		k.mouse_timer -= rl.GetFrameTime()
-	}
-
-	if k.mouse_timer < 0 {
-		k.attack_counter = 0
-		k.attack_no = 0
-	}
-
-	if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-		k.mouse_timer = 0.500
-		k.attack_counter++
-	}
-
-	if k.attack_counter != 0 && !strings.Contains(k.state, "attack") {
-		rl.PlaySound(k.attack_sound)
-		k.attack_counter--
-		if k.attack_no == 2 {
-			k.attack_no = 0
-		}
-		if k.attack_no == 0 {
-			k.state = "side_attack1"
-			k.UpdateState()
-		} else {
-			k.state = "side_attack2"
-			k.UpdateState()
-		}
-		k.attack_no++
-	}
-
+	k.handleMouse()
+	k.handleAttack()
 	if !strings.Contains(k.state, "attack") {
 		if rl.IsKeyDown(rl.KeyD) {
 			k.direction.X = 1
@@ -119,10 +99,7 @@ func (k *Knight) Update() {
 			k.direction.Y = 0
 		}
 
-		if k.direction.X != 0 && k.direction.Y != 0 {
-			k.direction.X *= float32(math.Cos(math.Pi / 4))
-			k.direction.Y *= float32(math.Sin(math.Pi / 4))
-		}
+		k.direction = rl.Vector2Normalize(k.direction)
 
 		if ((k.direction.X != 0) || (k.direction.Y != 0)) && (k.state != "run") {
 			k.state = "run"
@@ -194,8 +171,120 @@ func (k *Knight) UpdateState() {
 		k.sourceRec.X = float32(anim.FrameX)
 		k.sourceRec.Y = float32(anim.FrameY)
 	case "down_attack1":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 4
+		k.sourceRec.X = float32(anim.FrameX)
+		k.sourceRec.Y = float32(anim.FrameY)
 	case "down_attack2":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 5
+		k.sourceRec.X = float32(anim.FrameX)
+		k.sourceRec.Y = float32(anim.FrameY)
 	case "up_attack1":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 6
+		k.sourceRec.X = float32(anim.FrameX)
+		k.sourceRec.Y = float32(anim.FrameY)
 	case "up_attack2":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 7
+		k.sourceRec.X = float32(anim.FrameX)
+		k.sourceRec.Y = float32(anim.FrameY)
+	}
+}
+
+func (k *Knight) handleMouse() {
+	var vec rl.Vector2 = rl.Vector2Subtract(ut.Globals.MousePos, rl.NewVector2(k.Position.X+float32(k.animation.FrameWidth)/2, k.Position.Y+float32(k.animation.FrameHeight)/2))
+	var temp float32 = float32(math.Atan2(float64(vec.Y), float64(vec.X)) * 180 / math.Pi)
+	var angle float32 = ternary(temp < 0, 360+temp, temp)
+
+	if angle >= 315 || angle <= 45 {
+		k.aimSide = side.Right
+	} else if angle > 45 && angle < 135 {
+		k.aimSide = side.Bottom
+	} else if angle >= 135 && angle <= 225 {
+		k.aimSide = side.Left
+	} else if angle > 225 && angle < 315 {
+		k.aimSide = side.Top
+	}
+
+	println(k.aimSide)
+}
+
+func (k *Knight) handleAttack() {
+	if k.mouse_timer > 0 {
+		k.mouse_timer -= rl.GetFrameTime()
+	}
+
+	if k.mouse_timer < 0 {
+		k.attack_counter = 0
+		k.attack_no = 0
+	}
+
+	if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
+		k.mouse_timer = 0.500
+		k.attack_counter++
+	}
+
+	if k.attack_counter != 0 && !strings.Contains(k.state, "attack") {
+		rl.PlaySound(k.attack_sound)
+		k.attack_counter--
+		if k.attack_no == 2 {
+			k.attack_no = 0
+		}
+		if k.attack_no == 0 {
+			switch k.aimSide {
+			case side.Right:
+				if k.sourceRec.Width < 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "side_attack1"
+			case side.Left:
+				if k.sourceRec.Width > 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "side_attack1"
+			case side.Top:
+				if k.sourceRec.Width < 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "up_attack1"
+			case side.Bottom:
+				if k.sourceRec.Width < 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "down_attack1"
+			}
+			k.UpdateState()
+		} else {
+			switch k.aimSide {
+			case side.Right:
+				if k.sourceRec.Width < 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "side_attack2"
+			case side.Left:
+				if k.sourceRec.Width > 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "side_attack2"
+			case side.Top:
+				if k.sourceRec.Width < 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "up_attack2"
+			case side.Bottom:
+				if k.sourceRec.Width < 0 {
+					k.sourceRec.Width *= -1
+				}
+				k.state = "down_attack2"
+			}
+			k.UpdateState()
+		}
+		k.attack_no++
 	}
 }

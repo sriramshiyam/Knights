@@ -7,4 +7,5 @@ var Globals = struct {
 	CanvasHeight int
 	CanavsDest   rl.Rectangle
 	CanvasSource rl.Rectangle
-}{1152, 648, rl.Rectangle{}, rl.Rectangle{}}
+	MousePos     rl.Vector2
+}{1152, 648, rl.Rectangle{}, rl.Rectangle{}, rl.Vector2{}}

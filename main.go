@@ -23,7 +23,7 @@ func main() {
 
 	var music rl.Music = rl.LoadMusicStream("res/music/country.mp3")
 	music.Looping = true
-	rl.SetMasterVolume(0.0)
+	// rl.SetMasterVolume(0)
 	rl.PlayMusicStream(music)
 
 	var textures ut.Textures = ut.Textures{}
@@ -46,8 +46,9 @@ func main() {
 	for !rl.WindowShouldClose() {
 		rl.UpdateMusicStream(music)
 		if rl.IsWindowResized() {
-			ResizeCanvas()
+			resizeCanvas()
 		}
+		trackMouse()
 		knight.Update()
 		camera.Update()
 		ground.Update()
@@ -65,7 +66,7 @@ func main() {
 		objects.DrawObjects(0)
 		knight.Draw()
 		objects.DrawObjects(1)
-		
+
 		rl.EndTextureMode()
 
 		rl.BeginDrawing()
@@ -81,7 +82,19 @@ func main() {
 	rl.CloseWindow()
 }
 
-func ResizeCanvas() {
+func trackMouse() {
+	var windowWidth, windowHeight int = rl.GetScreenWidth(), rl.GetScreenHeight()
+	var x, y int32 = rl.GetMouseX(), rl.GetMouseY()
+	var canvasOffsetX, canvasOffsetY float32 = ut.Globals.CanavsDest.X, ut.Globals.CanavsDest.Y
+
+	if ((float32(y) > (canvasOffsetY)) && (float32(y) < (float32(windowHeight) - (canvasOffsetY)))) &&
+		((float32(x) > (canvasOffsetX)) && (float32(x) < (float32(windowWidth) - (canvasOffsetX)))) {
+		ut.Globals.MousePos.X = (((float32(x) - canvasOffsetX) / (float32(windowWidth) - canvasOffsetX*2)) * 100) * float32(ut.Globals.CanvasWidth) / 100
+		ut.Globals.MousePos.Y = (((float32(y) - canvasOffsetY) / (float32(windowHeight) - canvasOffsetY*2)) * 100) * float32(ut.Globals.CanvasHeight) / 100
+	}
+}
+
+func resizeCanvas() {
 	var screenWidth int = rl.GetScreenWidth()
 	var screenHeight int = rl.GetScreenHeight()
 
