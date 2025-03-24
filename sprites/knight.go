@@ -8,13 +8,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var side = struct {
-	Right  int
-	Bottom int
-	Left   int
-	Top    int
-}{0, 1, 2, 3}
-
 type Knight struct {
 	Position       rl.Vector2
 	direction      rl.Vector2
@@ -28,7 +21,6 @@ type Knight struct {
 	attack_no      int
 	attack_counter int
 	mouse_timer    float32
-	attack_sound   rl.Sound
 	CollisionBox   ut.CollisionBox
 	aimSide        int
 }
@@ -65,7 +57,6 @@ func (k *Knight) Load(texture rl.Texture2D) {
 	k.attack_no = 0
 	k.attack_counter = 0
 	k.mouse_timer = 0.500
-	k.attack_sound = rl.LoadSound("res/sound/sword.wav")
 	k.CollisionBox = ut.CollisionBox{Rect: rl.NewRectangle(k.Position.X+74, k.Position.Y+68, 41, 60)}
 }
 
@@ -203,16 +194,14 @@ func (k *Knight) handleMouse() {
 	var angle float32 = ternary(temp < 0, 360+temp, temp)
 
 	if angle >= 315 || angle <= 45 {
-		k.aimSide = side.Right
+		k.aimSide = ut.Globals.Side.Right
 	} else if angle > 45 && angle < 135 {
-		k.aimSide = side.Bottom
+		k.aimSide = ut.Globals.Side.Bottom
 	} else if angle >= 135 && angle <= 225 {
-		k.aimSide = side.Left
+		k.aimSide = ut.Globals.Side.Left
 	} else if angle > 225 && angle < 315 {
-		k.aimSide = side.Top
+		k.aimSide = ut.Globals.Side.Top
 	}
-
-	println(k.aimSide)
 }
 
 func (k *Knight) handleAttack() {
@@ -231,29 +220,29 @@ func (k *Knight) handleAttack() {
 	}
 
 	if k.attack_counter != 0 && !strings.Contains(k.state, "attack") {
-		rl.PlaySound(k.attack_sound)
+		rl.PlaySound(ut.Globals.Sound.PlayerAttackSound)
 		k.attack_counter--
 		if k.attack_no == 2 {
 			k.attack_no = 0
 		}
 		if k.attack_no == 0 {
 			switch k.aimSide {
-			case side.Right:
+			case ut.Globals.Side.Right:
 				if k.sourceRec.Width < 0 {
 					k.sourceRec.Width *= -1
 				}
 				k.state = "side_attack1"
-			case side.Left:
+			case ut.Globals.Side.Left:
 				if k.sourceRec.Width > 0 {
 					k.sourceRec.Width *= -1
 				}
 				k.state = "side_attack1"
-			case side.Top:
+			case ut.Globals.Side.Top:
 				if k.sourceRec.Width < 0 {
 					k.sourceRec.Width *= -1
 				}
 				k.state = "up_attack1"
-			case side.Bottom:
+			case ut.Globals.Side.Bottom:
 				if k.sourceRec.Width < 0 {
 					k.sourceRec.Width *= -1
 				}
@@ -262,22 +251,22 @@ func (k *Knight) handleAttack() {
 			k.UpdateState()
 		} else {
 			switch k.aimSide {
-			case side.Right:
+			case ut.Globals.Side.Right:
 				if k.sourceRec.Width < 0 {
 					k.sourceRec.Width *= -1
 				}
 				k.state = "side_attack2"
-			case side.Left:
+			case ut.Globals.Side.Left:
 				if k.sourceRec.Width > 0 {
 					k.sourceRec.Width *= -1
 				}
 				k.state = "side_attack2"
-			case side.Top:
+			case ut.Globals.Side.Top:
 				if k.sourceRec.Width < 0 {
 					k.sourceRec.Width *= -1
 				}
 				k.state = "up_attack2"
-			case side.Bottom:
+			case ut.Globals.Side.Bottom:
 				if k.sourceRec.Width < 0 {
 					k.sourceRec.Width *= -1
 				}

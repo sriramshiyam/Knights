@@ -18,12 +18,13 @@ func main() {
 	ut.Globals.CanavsDest.Height = float32(ut.Globals.CanvasHeight)
 	ut.Globals.CanvasSource.Width = float32(ut.Globals.CanvasWidth)
 	ut.Globals.CanvasSource.Height = -float32(ut.Globals.CanvasHeight)
+	ut.Globals.Sound.Load()
 
 	var Canvas rl.RenderTexture2D = rl.LoadRenderTexture(int32(ut.Globals.CanvasWidth), int32(ut.Globals.CanvasHeight))
 
 	var music rl.Music = rl.LoadMusicStream("res/music/country.mp3")
 	music.Looping = true
-	// rl.SetMasterVolume(0)
+	rl.SetMasterVolume(0)
 	rl.PlayMusicStream(music)
 
 	var textures ut.Textures = ut.Textures{}
@@ -31,8 +32,12 @@ func main() {
 
 	var knight sp.Knight = sp.Knight{}
 	knight.Load(textures.Knight)
+
 	var ground sp.Ground = sp.Ground{}
 	ground.Load(textures.Ground, textures.Foam)
+
+	var goblin sp.TorchGoblin = sp.TorchGoblin{}
+	goblin.Load(textures.TorchGolbin, &knight)
 
 	var objects sp.Objects = sp.Objects{}
 	objects.Load(textures.House, textures.Tree, &textures.PlantTextures)
@@ -53,8 +58,10 @@ func main() {
 		camera.Update()
 		ground.Update()
 		objects.Update()
+		goblin.Update()
 		ground.ApplyCameraOffset(camera.Offset)
 		objects.ApplyCameraOffset(camera.Offset)
+		goblin.ApplyCameraOffset(camera.Offset)
 		objects.HandleCollisionWithKnight(&knight)
 
 		rl.BeginTextureMode(Canvas)
@@ -66,6 +73,7 @@ func main() {
 		objects.DrawObjects(0)
 		knight.Draw()
 		objects.DrawObjects(1)
+		goblin.Draw()
 
 		rl.EndTextureMode()
 
@@ -76,6 +84,7 @@ func main() {
 	}
 
 	textures.UnLoad()
+	ut.Globals.Sound.UnLoad()
 	rl.UnloadRenderTexture(Canvas)
 	rl.UnloadMusicStream(music)
 	rl.CloseAudioDevice()

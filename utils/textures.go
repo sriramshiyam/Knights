@@ -9,6 +9,7 @@ type Textures struct {
 	Foam          rl.Texture2D
 	Tree          rl.Texture2D
 	PlantTextures map[string]rl.Texture2D
+	TorchGolbin   rl.Texture2D
 }
 
 func (t *Textures) Load() {
@@ -25,6 +26,7 @@ func (t *Textures) Load() {
 	t.PlantTextures["grass2"] = rl.LoadTexture("res/image/grass2.png")
 	t.PlantTextures["mushroom1"] = rl.LoadTexture("res/image/mushroom1.png")
 	t.PlantTextures["mushroom2"] = rl.LoadTexture("res/image/mushroom2.png")
+	t.TorchGolbin = rl.LoadTexture("res/image/torchgoblin.png")
 }
 
 func (t *Textures) UnLoad() {
@@ -36,4 +38,5 @@ func (t *Textures) UnLoad() {
 	for _, texture := range t.PlantTextures {
 		rl.UnloadTexture(texture)
 	}
+	rl.UnloadTexture(t.TorchGolbin)
 }
