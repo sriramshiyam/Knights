@@ -17,4 +17,5 @@ var Globals = struct {
 	MousePos     rl.Vector2
 	Sound        Sounds
 	Side         Side
-}{1152, 648, rl.Rectangle{}, rl.Rectangle{}, rl.Vector2{}, Sounds{}, Side{0, 1, 2, 3}}
+	Shaders      Shaders
+}{1152, 648, rl.Rectangle{}, rl.Rectangle{}, rl.Vector2{}, Sounds{}, Side{0, 1, 2, 3}, Shaders{}}

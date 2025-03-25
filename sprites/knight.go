@@ -23,6 +23,8 @@ type Knight struct {
 	mouse_timer    float32
 	CollisionBox   ut.CollisionBox
 	aimSide        int
+	Moving         bool
+	Attacked       bool
 }
 
 func (k *Knight) Load(texture rl.Texture2D) {
@@ -67,6 +69,7 @@ func (k *Knight) UnLoad() {
 func (k *Knight) Update() {
 	k.handleMouse()
 	k.handleAttack()
+
 	if !strings.Contains(k.state, "attack") {
 		if rl.IsKeyDown(rl.KeyD) {
 			k.direction.X = 1
@@ -106,6 +109,9 @@ func (k *Knight) Update() {
 			k.destRec.Y = k.Position.Y
 			k.CollisionBox.Rect.X = k.Position.X + 74
 			k.CollisionBox.Rect.Y = k.Position.Y + 68
+			k.Moving = true
+		} else {
+			k.Moving = false
 		}
 	}
 

@@ -2,25 +2,30 @@ package sprites
 
 import (
 	ut "main/utils"
+	"math"
 	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type TorchGoblin struct {
-	Position     rl.Vector2
-	direction    rl.Vector2
-	origin       rl.Vector2
-	texture      rl.Texture2D
-	animation    ut.Animation
-	sourceRec    rl.Rectangle
-	destRec      rl.Rectangle
-	state        string
-	Speed        float32
-	CollisionBox ut.CollisionBox
-	aimSide      int
-	player       *Knight
-	moving       bool
+	Position          rl.Vector2
+	direction         rl.Vector2
+	origin            rl.Vector2
+	texture           rl.Texture2D
+	animation         ut.Animation
+	sourceRec         rl.Rectangle
+	destRec           rl.Rectangle
+	state             string
+	Speed             float32
+	CollisionBox      ut.CollisionBox
+	aimSide           int
+	player            *Knight
+	moving            bool
+	attacked          bool
+	attackedForce     float32
+	attackedDirection rl.Vector2
+	waitTimer         float32
 }
 
 func (t *TorchGoblin) Load(texture rl.Texture2D, player *Knight) {
@@ -79,7 +84,7 @@ func (t *TorchGoblin) Update() {
 	t.direction = rl.Vector2Normalize(rl.Vector2Subtract(playerPos, pos))
 	var distance float32 = rl.Vector2Distance(playerPos, pos)
 
-	if distance > 70 {
+	if !t.attacked && distance > 70 && !strings.Contains(t.state, "attack") {
 		t.Position = rl.Vector2Add(t.Position, rl.Vector2Scale(t.direction, t.Speed*rl.GetFrameTime()))
 		t.destRec.X = t.Position.X
 		t.destRec.Y = t.Position.Y
@@ -88,17 +93,63 @@ func (t *TorchGoblin) Update() {
 		t.moving = true
 	} else {
 		t.moving = false
+		if !t.attacked {
+			t.handleAimAttack(&playerPos, &pos)
+			t.checkAttackedByPlayer()
+		}
 	}
 
-	if t.moving && t.state != "running" {
+	t.handleAttackedState()
+
+	if !t.attacked && t.player.Moving && !t.moving && distance > 70 {
+		t.moving = true
 		t.state = "running"
 		t.UpdateState()
-	} else if !t.moving && t.state != "idle" {
-		t.state = "idle"
-		t.UpdateState()
+	}
+
+	if !t.attacked && !strings.Contains(t.state, "attack") {
+		if t.moving && t.state != "running" {
+			t.state = "running"
+			t.UpdateState()
+		} else if !t.moving && t.state != "idle" {
+			t.state = "idle"
+			t.UpdateState()
+		}
 	}
 
 	t.UpdateAnimation()
+	println(t.state)
+}
+
+func (t *TorchGoblin) handleAimAttack(playerPos *rl.Vector2, pos *rl.Vector2) {
+	var vec rl.Vector2 = rl.Vector2Subtract(*playerPos, *pos)
+	var temp float32 = float32(math.Atan2(float64(vec.Y), float64(vec.X)) * 180 / math.Pi)
+	var angle float32 = ternary(temp < 0, 360+temp, temp)
+
+	if angle >= 315 || angle <= 45 {
+		t.aimSide = ut.Globals.Side.Right
+	} else if angle > 45 && angle < 135 {
+		t.aimSide = ut.Globals.Side.Bottom
+	} else if angle >= 135 && angle <= 225 {
+		t.aimSide = ut.Globals.Side.Left
+	} else if angle > 225 && angle < 315 {
+		t.aimSide = ut.Globals.Side.Top
+	}
+
+	if !strings.Contains(t.state, "attack") {
+		switch t.aimSide {
+		case ut.Globals.Side.Left:
+			t.state = "attack_left"
+		case ut.Globals.Side.Right:
+			t.state = "attack_right"
+		case ut.Globals.Side.Bottom:
+			t.state = "attack_bottom"
+		case ut.Globals.Side.Top:
+			t.state = "attack_top"
+		}
+		t.player.Attacked = true
+		t.UpdateState()
+	}
 }
 
 func (t *TorchGoblin) UpdateAnimation() {
@@ -120,6 +171,8 @@ func (t *TorchGoblin) UpdateAnimation() {
 
 func (t *TorchGoblin) UpdateState() {
 	var anim *ut.Animation = &t.animation
+	anim.FrameCount = 6
+
 	switch t.state {
 	case "idle":
 		anim.FrameCount = 7
@@ -129,17 +182,82 @@ func (t *TorchGoblin) UpdateState() {
 		t.sourceRec.X = float32(anim.FrameX)
 		t.sourceRec.Y = float32(anim.FrameY)
 	case "running":
-		anim.FrameCount = 6
 		anim.FrameTime = 0.100
 		anim.FrameX = 0
 		anim.FrameY = anim.FrameHeight
 		t.sourceRec.X = float32(anim.FrameX)
 		t.sourceRec.Y = float32(anim.FrameY)
+	case "attack_left":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 2
+		t.sourceRec.X = float32(anim.FrameX)
+		t.sourceRec.Y = float32(anim.FrameY)
+	case "attack_right":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 2
+		t.sourceRec.X = float32(anim.FrameX)
+		t.sourceRec.Y = float32(anim.FrameY)
+	case "attack_bottom":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 3
+		t.sourceRec.X = float32(anim.FrameX)
+		t.sourceRec.Y = float32(anim.FrameY)
+	case "attack_top":
+		anim.FrameTime = 0.100
+		anim.FrameX = 0
+		anim.FrameY = anim.FrameHeight * 4
+		t.sourceRec.X = float32(anim.FrameX)
+		t.sourceRec.Y = float32(anim.FrameY)
+	}
+}
+
+func (t *TorchGoblin) checkAttackedByPlayer() {
+	if strings.Contains(t.player.state, "attack") && (t.player.animation.FrameX == 3 || t.player.animation.FrameX == 4) {
+		if (t.player.aimSide == ut.Globals.Side.Top && t.aimSide == ut.Globals.Side.Bottom) ||
+			(t.player.aimSide == ut.Globals.Side.Bottom && t.aimSide == ut.Globals.Side.Top) ||
+			(t.player.aimSide == ut.Globals.Side.Left && t.aimSide == ut.Globals.Side.Right) ||
+			(t.player.aimSide == ut.Globals.Side.Right && t.aimSide == ut.Globals.Side.Left) {
+			t.attacked = true
+			t.attackedForce = 1250
+			t.attackedDirection = rl.Vector2Rotate(t.direction, math.Pi)
+			t.state = "idle"
+			t.UpdateState()
+		}
+	}
+}
+
+func (t *TorchGoblin) handleAttackedState() {
+	if t.attacked {
+		if t.attackedForce > 0 {
+			t.Position = rl.Vector2Add(t.Position, rl.Vector2Scale(t.attackedDirection, t.attackedForce*rl.GetFrameTime()))
+			t.destRec.X = t.Position.X
+			t.destRec.Y = t.Position.Y
+			t.CollisionBox.Rect.X = t.Position.X + 77
+			t.CollisionBox.Rect.Y = t.Position.Y + 65
+			t.attackedForce -= rl.GetFrameTime() * 8000
+			if t.attackedForce < 0 {
+				t.waitTimer = 0.120
+			}
+		} else {
+			t.waitTimer -= rl.GetFrameTime()
+			if t.waitTimer < 0 {
+				t.attacked = false
+			}
+		}
 	}
 }
 
 func (t *TorchGoblin) Draw() {
+	if t.attacked {
+		rl.BeginShaderMode(ut.Globals.Shaders.AttackedShader)
+	}
 	rl.DrawTexturePro(t.texture, t.sourceRec, t.destRec, t.origin, 0, rl.White)
+	if t.attacked {
+		rl.EndShaderMode()
+	}
 	// rl.DrawRectangleLinesEx(t.CollisionBox.Rect, 1, rl.Red)
 }
 

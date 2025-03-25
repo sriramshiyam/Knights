@@ -19,12 +19,13 @@ func main() {
 	ut.Globals.CanvasSource.Width = float32(ut.Globals.CanvasWidth)
 	ut.Globals.CanvasSource.Height = -float32(ut.Globals.CanvasHeight)
 	ut.Globals.Sound.Load()
+	ut.Globals.Shaders.Load()
 
 	var Canvas rl.RenderTexture2D = rl.LoadRenderTexture(int32(ut.Globals.CanvasWidth), int32(ut.Globals.CanvasHeight))
 
 	var music rl.Music = rl.LoadMusicStream("res/music/country.mp3")
 	music.Looping = true
-	rl.SetMasterVolume(0)
+	// rl.SetMasterVolume(0)
 	rl.PlayMusicStream(music)
 
 	var textures ut.Textures = ut.Textures{}
@@ -85,6 +86,7 @@ func main() {
 
 	textures.UnLoad()
 	ut.Globals.Sound.UnLoad()
+	ut.Globals.Shaders.UnLoad()
 	rl.UnloadRenderTexture(Canvas)
 	rl.UnloadMusicStream(music)
 	rl.CloseAudioDevice()
