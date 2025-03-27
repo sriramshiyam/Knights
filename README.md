@@ -1,6 +1,6 @@
 # Knights
 
-<video width="600" controls>
-  <source src="res/gameplay.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
+
+https://github.com/user-attachments/assets/26d7a66e-ff9e-40d8-9b54-30f404c9542b
+
