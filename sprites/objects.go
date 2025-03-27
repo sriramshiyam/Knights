@@ -172,7 +172,7 @@ func ternary[T any](cond bool, vtrue, vfalse T) T {
 	return vfalse
 }
 
-func (o *Objects) ApplyCameraOffset(offset rl.Vector2) {
+func (o *Objects) ApplyCameraOffset(offset *rl.Vector2) {
 	for i := range o.objects {
 		var position *rl.Vector2 = &o.objects[i].Position
 		position.X += offset.X

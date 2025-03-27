@@ -26,9 +26,13 @@ type TorchGoblin struct {
 	attackedForce     float32
 	attackedDirection rl.Vector2
 	waitTimer         float32
+	Dead              bool
+	health            int
+	deaths            *Deaths
 }
 
-func (t *TorchGoblin) Load(texture rl.Texture2D, player *Knight) {
+func (t *TorchGoblin) Load(texture rl.Texture2D, player *Knight, deaths *Deaths) {
+	t.deaths = deaths
 	t.player = player
 	t.state = "idle"
 	t.texture = texture
@@ -58,6 +62,7 @@ func (t *TorchGoblin) Load(texture rl.Texture2D, player *Knight) {
 	t.destRec.Y = t.Position.Y
 	t.origin = rl.Vector2{}
 	t.CollisionBox = ut.CollisionBox{Rect: rl.NewRectangle(t.Position.X+77, t.Position.Y+65, 37, 63)}
+	t.health = 3
 }
 
 func (t *TorchGoblin) UnLoad() {
@@ -65,6 +70,9 @@ func (t *TorchGoblin) UnLoad() {
 }
 
 func (t *TorchGoblin) Update() {
+	if t.Dead {
+		return
+	}
 	var playerRect *rl.Rectangle = &t.player.CollisionBox.Rect
 	var playerPos rl.Vector2 = rl.NewVector2(playerRect.X+playerRect.Width/2, playerRect.Y+playerRect.Height/2)
 
@@ -118,7 +126,6 @@ func (t *TorchGoblin) Update() {
 	}
 
 	t.UpdateAnimation()
-	println(t.state)
 }
 
 func (t *TorchGoblin) handleAimAttack(playerPos *rl.Vector2, pos *rl.Vector2) {
@@ -245,12 +252,21 @@ func (t *TorchGoblin) handleAttackedState() {
 			t.waitTimer -= rl.GetFrameTime()
 			if t.waitTimer < 0 {
 				t.attacked = false
+				t.health--
+				if t.health == 0 {
+					t.Dead = true
+					var pos = rl.NewVector2(t.Position.X+float32(t.animation.FrameWidth)/2, t.Position.Y+float32(t.animation.FrameHeight)/2)
+					t.deaths.AddToList(&pos, t.sourceRec.Width < 0)
+				}
 			}
 		}
 	}
 }
 
 func (t *TorchGoblin) Draw() {
+	if t.Dead {
+		return
+	}
 	if t.attacked {
 		rl.BeginShaderMode(ut.Globals.Shaders.AttackedShader)
 	}
@@ -261,7 +277,7 @@ func (t *TorchGoblin) Draw() {
 	// rl.DrawRectangleLinesEx(t.CollisionBox.Rect, 1, rl.Red)
 }
 
-func (t *TorchGoblin) ApplyCameraOffset(offset rl.Vector2) {
+func (t *TorchGoblin) ApplyCameraOffset(offset *rl.Vector2) {
 	t.Position.X += offset.X
 	t.Position.Y += offset.Y
 	t.destRec.X += offset.X

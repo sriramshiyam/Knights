@@ -117,7 +117,7 @@ func (g *Ground) Draw() {
 	}
 }
 
-func (g *Ground) ApplyCameraOffset(offset rl.Vector2) {
+func (g *Ground) ApplyCameraOffset(offset *rl.Vector2) {
 	for i := range g.tiles {
 		var tilePosition *rl.Vector2 = &g.tiles[i].position
 		tilePosition.X += offset.X
